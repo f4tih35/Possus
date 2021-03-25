@@ -1,0 +1,16 @@
+C:\Users\Fatih\Desktop\Github\Possus\obj\Debug\netcoreapp3.1\Possus.csprojAssemblyReference.cache
+C:\Users\Fatih\Desktop\Github\Possus\obj\Debug\netcoreapp3.1\Possus.AssemblyInfoInputs.cache
+C:\Users\Fatih\Desktop\Github\Possus\obj\Debug\netcoreapp3.1\Possus.AssemblyInfo.cs
+C:\Users\Fatih\Desktop\Github\Possus\obj\Debug\netcoreapp3.1\Possus.csproj.CoreCompileInputs.cache
+C:\Users\Fatih\Desktop\Github\Possus\bin\Debug\netcoreapp3.1\Possus.exe
+C:\Users\Fatih\Desktop\Github\Possus\bin\Debug\netcoreapp3.1\Possus.deps.json
+C:\Users\Fatih\Desktop\Github\Possus\bin\Debug\netcoreapp3.1\Possus.runtimeconfig.json
+C:\Users\Fatih\Desktop\Github\Possus\bin\Debug\netcoreapp3.1\Possus.runtimeconfig.dev.json
+C:\Users\Fatih\Desktop\Github\Possus\bin\Debug\netcoreapp3.1\Possus.dll
+C:\Users\Fatih\Desktop\Github\Possus\bin\Debug\netcoreapp3.1\Possus.pdb
+C:\Users\Fatih\Desktop\Github\Possus\obj\Debug\netcoreapp3.1\Possus.dll
+C:\Users\Fatih\Desktop\Github\Possus\obj\Debug\netcoreapp3.1\Possus.pdb
+C:\Users\Fatih\Desktop\Github\Possus\obj\Debug\netcoreapp3.1\Possus.genruntimeconfig.cache
+C:\Users\Fatih\Desktop\Github\Possus\bin\Debug\netcoreapp3.1\Newtonsoft.Json.dll
+C:\Users\Fatih\Desktop\Github\Possus\obj\Debug\netcoreapp3.1\Possus.csproj.CopyComplete
+C:\Users\Fatih\Desktop\Github\Possus\bin\Debug\netcoreapp3.1\RestSharp.dll
