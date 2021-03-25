@@ -143,7 +143,7 @@ namespace Possus
 
         //display scan result console OK
         //return it for json output -
-        public void GetAndReturnScan(string URL, NessusAuth na,string id,string file)
+        public void GetAndReturnScan(string URL, NessusAuth na,string id,string file, int export=0)
         {
             try
             {
@@ -232,6 +232,7 @@ namespace Possus
 
                 Console.WriteLine();
                 Console.WriteLine("Vulnerabilities");
+                List<Vulnerability> vlns = new List<Vulnerability>();
                 foreach (var item in Vulnerabilities)
                 {
                     
@@ -267,7 +268,7 @@ namespace Possus
                     //output
                     if (item["plugin_output"] != null)
                         vulnerability.Output = item["plugin_output"].ToString();
-                    
+                    vlns.Add(vulnerability);
                     Console.WriteLine("protocol         : " + vulnerability.Protocol);
                     Console.WriteLine("severity         : " + vulnerability.Severity);
                     Console.WriteLine("pluginID         : " + vulnerability.PluginId);
@@ -276,7 +277,14 @@ namespace Possus
                     Console.WriteLine("description      : " + vulnerability.Description);
                     Console.WriteLine("solution         : " + vulnerability.Solution);
                     Console.WriteLine("output           : " + vulnerability.Output);
-                    
+
+                    //export json
+                    if(export == 1)
+                    {
+                        ScanResultCollection srcc = new ScanResultCollection(scanResult, host, vlns);
+                    }
+                        
+
                 }
 
             }

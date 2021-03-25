@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace Possus.JsonOutput
@@ -7,21 +9,13 @@ namespace Possus.JsonOutput
     public class ScanResultCollection
     {
         public ICollection<ScanResult> ScanResults { get; set; }
-        /*
-        public ScanResultCollection()
+
+        public ScanResultCollection(ScanResult sr,Host h,List<Vulnerability> vs)
         {
-            this.ScanResults = new List<ScanResult>(){new ScanResult()
-            {
-              ScanName="test scan",
-              Hosts = new List<Host>(){
-                new Host()
-                {
-                  Target="test target",
-                  Vulnerabilities = new List<Vulnerability>(){new Vulnerability(){Protocol="test protocol"}}
-                }
-              }
-            }};
+            h.Vulnerabilities = vs;
+            sr.Hosts = new List<Host>() { h };
+            this.ScanResults = new List<ScanResult>(){sr};
+            File.WriteAllText($"{sr.ScanName}.json", JsonConvert.SerializeObject(this.ScanResults));
         }
-        */
     }
 }
