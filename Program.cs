@@ -10,47 +10,68 @@ using System.Text.Json.Serialization;
 using Newtonsoft.Json.Linq;
 using System.Collections.Specialized;
 using System.Collections.Generic;
+using Possus.JsonOutput;
 
 namespace Possus
 {
 
     class Program
     {
-        static async Task Main(string[] args)
+        static void Main(string[] args)
         {
             
-            NessusAuth nessusAuth = new NessusAuth();
-            NessusOperations nessusOperations = new NessusOperations();
-            
-            string nessusServerURL = Console.ReadLine();
-            nessusAuth.username = Console.ReadLine();
-            nessusAuth.password = Console.ReadLine();
+            NessusAuth nessusAuth = new NessusAuth(); // setup auth
+            NessusOperations nessusOperations = new NessusOperations(); // setup operations
 
-            while(true)
+            //validation need
+            Console.Write("nessus server url: ");
+            string nessusServerURL = Console.ReadLine();
+            Console.Write("username: ");
+            nessusAuth.UserName = Console.ReadLine();
+            Console.Write("password: ");
+            nessusAuth.Password = Console.ReadLine();
+            Console.Clear();
+            while (true)
             {
-                Console.WriteLine("welcome to possus\n1-getLastScan\n2-getScanById\n3-getScanIDs\n4-getStatus");
+                Console.Write("\n\n--POSSUS--\n1 - Export last scan\n2 - Export scan by ID\n3 - List all scan IDs\n4 - Get server status\noperation: ");
                 try
                 {
-                    int islem = int.Parse(Console.ReadLine());
-                    string id = "";
-                    switch (islem)
+                    int operation = int.Parse(Console.ReadLine());
+                    string scanId = "";
+                    string fileId = "";
+                    switch (operation)
                     {
-                        case 1:
-                            nessusOperations.ExportLastScan(nessusServerURL, nessusAuth);
+                        case 1: //export json
+                            Console.Clear();
+                            Console.Write("1 - Export last scan\n");
+                            string lastId = nessusOperations.GetLastScanId(nessusServerURL,nessusAuth);
+                            fileId = nessusOperations.GetFileId(nessusServerURL, nessusAuth, lastId);
+                            nessusOperations.GetAndReturnScan(nessusServerURL, nessusAuth, lastId, fileId);
                             break;
-                        case 2:
-                            id = Console.ReadLine();
-                            nessusOperations.ExportScan(nessusServerURL, nessusAuth, id);
+                        case 2: //export json
+                            Console.Clear();
+                            Console.Write("2 - Export scan by ID. Please write an id:");
+                            scanId = Console.ReadLine();
+                            Console.Clear();
+                            Console.WriteLine(scanId + " result\n");
+                            fileId = nessusOperations.GetFileId(nessusServerURL, nessusAuth, scanId);
+                            nessusOperations.GetAndReturnScan(nessusServerURL,nessusAuth,scanId,fileId);
+                            Console.WriteLine("press any key for continue");
+                            Console.ReadLine();
+                            Console.Clear();
                             break;
-                        case 3:
+                        case 3: //ok
+                            Console.Clear();
+                            Console.WriteLine("3 - List all scan IDs\n");
                             List<int> idlist = nessusOperations.GetAllScans(nessusServerURL, nessusAuth);
                             foreach (var item in idlist)
                             {
                                 Console.WriteLine(item);
                             }
                             break;
-                        case 4:
-                            Console.WriteLine(nessusOperations.GetServerStatus(nessusServerURL));
+                        case 4: //ok
+                            Console.Clear();
+                            Console.WriteLine("4 - Get server status: " + nessusOperations.GetServerStatus(nessusServerURL));
                             break;
 
                     }
