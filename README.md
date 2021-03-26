@@ -9,7 +9,7 @@
 - [x] MAC Address
 - [x] Scan start and finish date
 - [x] Target IP
-- [ ] Json Export 
+- [x] Json Export 
 - [ ] Log all actions
 - [ ] Cool UI 
 - [ ] Refactor app operations from Program.cs
