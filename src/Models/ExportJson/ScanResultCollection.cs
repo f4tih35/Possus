@@ -13,8 +13,8 @@ namespace Possus.JsonOutput
         public ScanResultCollection(ScanResult sr,Host h,List<Vulnerability> vs)
         {
             h.Vulnerabilities = vs;
-            sr.Hosts = new List<Host>() { h };
-            this.ScanResults = new List<ScanResult>(){sr};
+            sr.Host = h;
+            this.ScanResults = new List<ScanResult>(){sr}; // sikinti burada
             File.WriteAllText($"{sr.ScanName}.json", JsonConvert.SerializeObject(this.ScanResults));
         }
     }

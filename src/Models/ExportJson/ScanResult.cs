@@ -8,7 +8,7 @@ namespace Possus.JsonOutput
     {
         public string ScanName { get; set; }
         public string ReportGenerated { get; set; }
-        public List<Host> Hosts { get; set; }
+        public Host Host { get; set; }
     }
 
 

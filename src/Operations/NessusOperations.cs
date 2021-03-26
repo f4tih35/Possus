@@ -178,14 +178,14 @@ namespace Possus
         {
             XmlDocument doc;
             string xml;
-            JToken Vulnerabilities;
+            List<JToken> Vulnerabilities;
             IRestResponse Response = null;
             JObject Details = null;
             List<JToken> Tags;
             ScanResult scanResult = new ScanResult();
             Host host = new Host(); //host
-            Vulnerability vulnerability = new Vulnerability();
-            List<Vulnerability> vulnerabilities = new List<Vulnerability>();
+            Vulnerability vulnerability;
+            List<Vulnerability> vulnerabilitiesx = new List<Vulnerability>();
 
             try
             {
@@ -215,6 +215,7 @@ namespace Possus
                 doc.LoadXml(xml);
                 json = JsonConvert.SerializeXmlNode(doc);
                 Details = JObject.Parse(json);
+                File.WriteAllText($"zzz.json", JsonConvert.SerializeObject(Details)); //--------------------------
                 log.Info("convert and parse xml to json is success");
             }
             catch (Exception e)
@@ -224,7 +225,7 @@ namespace Possus
             }
 
 
-            Vulnerabilities = Details["NessusClientData_v2"]["Report"]["ReportHost"]["ReportItem"];
+            Vulnerabilities = Details["NessusClientData_v2"]["Report"]["ReportHost"]["ReportItem"].ToList();
             Tags = Details["NessusClientData_v2"]["Report"]["ReportHost"]["HostProperties"]["tag"].ToList();
 
 
@@ -291,7 +292,7 @@ namespace Possus
 
             foreach (var item in Vulnerabilities)
             {
-
+                vulnerability = new Vulnerability();
                 Console.WriteLine("-------------------------------------------");
                 //protocol               
                 if (item["@protocol"] != null)
@@ -319,12 +320,14 @@ namespace Possus
 
                 //solution  
                 if (item["solution"] != null)
-                    vulnerability.Solution = item["solution"].ToString();
+                    Console.WriteLine(item["solution"].ToString());
 
-                //output
+                //plugin output
                 if (item["plugin_output"] != null)
                     vulnerability.Output = item["plugin_output"].ToString();
-                vulnerabilities.Add(vulnerability);
+
+
+                vulnerabilitiesx.Add(vulnerability);
                 Console.WriteLine("\tprotocol         : " + vulnerability.Protocol);
                 Console.WriteLine("\tseverity         : " + vulnerability.Severity);
                 Console.WriteLine("\tpluginID         : " + vulnerability.PluginId);
@@ -334,23 +337,26 @@ namespace Possus
                 Console.WriteLine("\tsolution         : " + vulnerability.Solution);
                 Console.WriteLine("\toutput           : " + vulnerability.Output);
 
+
                 log.Info("writing info to console is success");
                 //export json
-                if (export == 1)
+
+
+
+            }
+
+            if (export == 1)
+            {
+                try
                 {
-                    try
-                    {
-                        new ScanResultCollection(scanResult, host, vulnerabilities);
-                        log.Info("json export is success");
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(e.Message);
-                        log.Error("error while exporting json");
-                    }
+                    new ScanResultCollection(scanResult, host, vulnerabilitiesx); //sikinti burada
+                    log.Info("json export is success");
                 }
-
-
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                    log.Error("error while exporting json");
+                }
             }
 
 
