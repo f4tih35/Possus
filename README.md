@@ -15,6 +15,45 @@ Nessus report prescreener
 	- save the file and rename it to auth.json
 -  Run the program
 
+## Json Format
+    [
+      {
+        "ScanName": "",
+        "ReportGenerated": "",
+        "Hosts": [
+          {
+            "Target": "",
+            "ScanStartDate": "",
+            "ScanFinishDate": "",
+            "MacAddress": "",
+            "OperatingSystem": "",
+            "Vulnerabilities": [
+              {
+                "Protocol": "",
+                "Severity": "",
+                "PluginId": "",
+                "Name": "",
+                "CvssBaseScore": "",
+                "Description": "",
+                "Solution": "",
+                "Output": ""
+              },
+              {
+                "Protocol": "",
+                "Severity": "",
+                "PluginId": "",
+                "Name": "",
+                "CvssBaseScore": "",
+                "Description": "",
+                "Solution": "",
+                "Output": ""
+              }
+            ]
+          }
+        ]
+      }
+    ]
+
 ## Screenshots
 ![1](/img/1.png?raw=true)  
 ![2](/img/2.png?raw=true)  
