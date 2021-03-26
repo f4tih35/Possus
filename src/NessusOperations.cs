@@ -24,7 +24,10 @@ namespace Possus
 
         RestClient Client;
         RestRequest Request;
-        
+        IRestResponse Response;
+        Exception CodeCheckerException;
+        JObject Details;
+        string file;
         //ignore ssl error
         public void SSLHandler()
         {
@@ -39,7 +42,7 @@ namespace Possus
                 Client = new RestClient(URL + "/server/status");
                 SSLHandler();
                 Request = new RestRequest(Method.GET);
-                IRestResponse Response = Client.Execute(Request);
+                Response = Client.Execute(Request);
                 log.Info("request in GetServerStatus is success");
                 return Response.Content;
             }
@@ -47,10 +50,10 @@ namespace Possus
             {
                 Console.WriteLine(e.Message);
                 log.Error("error while request in GetServerStatus");
-                throw;
+                return null;
             }
-            
-            
+
+
         }
 
         //check status code ok
@@ -58,16 +61,15 @@ namespace Possus
         {
             if (!((int)Response.StatusCode).Equals(200))
             {
-                var ex = new Exception(string.Format("{0} - {1}", Response.ErrorMessage, Response.StatusCode));
-                ex.Data.Add(Response.StatusCode, Response.ErrorMessage);
+                CodeCheckerException = new Exception(string.Format("{0} - {1}", Response.ErrorMessage, Response.StatusCode));
+                CodeCheckerException.Data.Add(Response.StatusCode, Response.ErrorMessage);
                 log.Error("status code is not 200 from StatusCodeChecker");
-                throw ex;
             }
             log.Info("status code is 200 from StatusCodeChecker");
         }
 
         //get token
-        public string GetToken(string URL, NessusAuth na)
+        public string GetToken(string URL, Connect na)
         {
             try
             {
@@ -88,11 +90,11 @@ namespace Possus
                 log.Error("error while request in GetToken");
                 return null;
             }
-            
+
         }
 
         //get id list of all scans
-        public List<int> GetAllScans(string URL, NessusAuth na)
+        public List<int> GetAllScans(string URL, Connect na)
         {
             try
             {
@@ -101,7 +103,7 @@ namespace Possus
                 SSLHandler();
                 Request = new RestRequest(Method.GET);
                 Request.AddHeader("X-Cookie", $"token={token}");
-                IRestResponse Response = Client.Execute(Request);
+                Response = Client.Execute(Request);
                 StatusCodeChecker(Response);
                 string jsonData = Response.Content;
                 var Details = JObject.Parse(jsonData);
@@ -120,12 +122,12 @@ namespace Possus
                 log.Error("error while request in GetAllScans");
                 return null;
             }
-            
+
 
         }
 
         //get last scan id
-        public string GetLastScanId(string URL, NessusAuth na)
+        public string GetLastScanId(string URL, Connect na)
         {
             try
             {
@@ -137,13 +139,13 @@ namespace Possus
             {
                 Console.WriteLine(e.Message);
                 log.Error("error while GetLastScanId");
-                throw;
+                return null;
             }
-            
+
         }
-        
+
         //get file
-        public string GetFileId(string URL, NessusAuth na, string id)
+        public string GetFileId(string URL, Connect na, string id)
         {
             try
             {
@@ -155,8 +157,8 @@ namespace Possus
                 Request.AddParameter("application/json", "{\n  \"format\":\"nessus\"\n}", ParameterType.RequestBody);
                 IRestResponse Response = Client.Execute(Request);
                 StatusCodeChecker(Response);
-                var Details = JObject.Parse(Response.Content);
-                string file = (string)Details["file"];
+                Details = JObject.Parse(Response.Content);
+                file = (string)Details["file"];
                 log.Info("GetFileId is success");
                 return file;
             }
@@ -164,17 +166,26 @@ namespace Possus
             {
                 Console.WriteLine(e.Message);
                 log.Error("error while GetFileId");
-                throw;
-            }        
+                return null;
+            }
 
         }
 
-        
 
 
-        public void GetAndReturnScan(string URL, NessusAuth na,string id,string file, int export=0)
+
+        public void GetAndReturnScan(string URL, Connect na, string id, string file, int export = 0)
         {
-            IRestResponse Response;
+            XmlDocument doc;
+            string xml;
+            JToken Vulnerabilities;
+            IRestResponse Response = null;
+            JObject Details = null;
+            List<JToken> Tags;
+            ScanResult scanResult = new ScanResult();
+            Host host = new Host(); //host
+            Vulnerability vulnerability = new Vulnerability();
+            List<Vulnerability> vulnerabilities = new List<Vulnerability>();
 
             try
             {
@@ -191,17 +202,16 @@ namespace Possus
             {
                 Console.WriteLine(e.Message);
                 log.Error("error while get request in GetAndReturnScan");
-                throw;
             }
 
             string json;
-            JObject Details;
+
 
             try
             {
                 //convert and parse xml to json
-                string xml = Response.Content;
-                XmlDocument doc = new XmlDocument();
+                xml = Response.Content;
+                doc = new XmlDocument();
                 doc.LoadXml(xml);
                 json = JsonConvert.SerializeXmlNode(doc);
                 Details = JObject.Parse(json);
@@ -211,143 +221,138 @@ namespace Possus
             {
                 Console.WriteLine(e.Message);
                 log.Error("error while convert and parse xml to json");
-                throw;
             }
-               
 
-                var Vulnerabilities = Details["NessusClientData_v2"]["Report"]["ReportHost"]["ReportItem"];
-                List<JToken> Tags = Details["NessusClientData_v2"]["Report"]["ReportHost"]["HostProperties"]["tag"].ToList();
-                
 
-                ScanResult scanResult = new ScanResult(); //scan result
+            Vulnerabilities = Details["NessusClientData_v2"]["Report"]["ReportHost"]["ReportItem"];
+            Tags = Details["NessusClientData_v2"]["Report"]["ReportHost"]["HostProperties"]["tag"].ToList();
 
-                //scan name
-                if (Details["NessusClientData_v2"]["Report"]["@name"] != null)
-                    scanResult.ScanName = Details["NessusClientData_v2"]["Report"]["@name"].ToString();
 
-                //report generated          
-                scanResult.ReportGenerated = DateTime.Now.ToString();
+            //scan name
+            if (Details["NessusClientData_v2"]["Report"]["@name"] != null)
+                scanResult.ScanName = Details["NessusClientData_v2"]["Report"]["@name"].ToString();
+
+            //report generated          
+            scanResult.ReportGenerated = DateTime.Now.ToString();
 
 
 
-                Host host = new Host(); //host
 
-                //hosts
-                foreach (var item in Tags)
+
+            //hosts
+            foreach (var item in Tags)
+            {
+                //target
+                if (item["@name"].ToString() == "host-ip")
                 {
-                    //target
-                    if (item["@name"].ToString() == "host-ip")
-                    {
-                        if (item["#text"] != null)
-                            host.Target = item["#text"].ToString();
-                    }
-                    //scan start date
-                    else if (item["@name"].ToString() == "HOST_START")
-                    {
-                        if (item["#text"] != null)
-                            host.ScanStartDate = item["#text"].ToString();
-                    }
-                    //scan finish date
-                    else if (item["@name"].ToString() == "HOST_END")
-                    {
-                        if (item["#text"] != null)
-                            host.ScanFinishDate = item["#text"].ToString();
-                    }
-                    //mac address
-                    else if(item["@name"].ToString() == "mac-address")
-                    {
-                        if (item["#text"] != null)
-                            host.MacAddress = item["#text"].ToString();
-                    }
-                    //operating system
-                    else if (item["@name"].ToString() == "operating-system")
-                    {
-                        if (item["#text"] != null)
-                            host.OperatingSystem = item["#text"].ToString();
-                    }
+                    if (item["#text"] != null)
+                        host.Target = item["#text"].ToString();
                 }
-                
-                Console.WriteLine();
-                Console.WriteLine("ScanName         : " + scanResult.ScanName);
-                Console.WriteLine("ReportGenerated  : " + scanResult.ReportGenerated);
-                Console.WriteLine("Target           : " + host.Target);
-                Console.WriteLine("ScanStartDate    : " + host.ScanStartDate);
-                Console.WriteLine("ScanFinishDate   : " + host.ScanFinishDate);
-                Console.WriteLine("MAC Address      : " + host.MacAddress);
-                Console.WriteLine("OperatingSystem  : " + host.OperatingSystem);
-
-
-
-                Vulnerability vulnerability = new Vulnerability(); //vulnerability
-
-                Console.WriteLine();
-                Console.WriteLine("Vulnerabilities");
-                List<Vulnerability> vlns = new List<Vulnerability>();
-                foreach (var item in Vulnerabilities)
+                //scan start date
+                else if (item["@name"].ToString() == "HOST_START")
                 {
-                    
-                    Console.WriteLine("-------------------------------------------");
-                    //protocol               
-                    if(item["@protocol"]!= null)
-                        vulnerability.Protocol = item["@protocol"].ToString();
+                    if (item["#text"] != null)
+                        host.ScanStartDate = item["#text"].ToString();
+                }
+                //scan finish date
+                else if (item["@name"].ToString() == "HOST_END")
+                {
+                    if (item["#text"] != null)
+                        host.ScanFinishDate = item["#text"].ToString();
+                }
+                //mac address
+                else if (item["@name"].ToString() == "mac-address")
+                {
+                    if (item["#text"] != null)
+                        host.MacAddress = item["#text"].ToString();
+                }
+                //operating system
+                else if (item["@name"].ToString() == "operating-system")
+                {
+                    if (item["#text"] != null)
+                        host.OperatingSystem = item["#text"].ToString();
+                }
+            }
 
-                    //severity               
-                    if (item["@severity"] != null)
-                        vulnerability.Severity = item["@severity"].ToString();
+            Console.WriteLine();
+            Console.WriteLine("ScanName         : " + scanResult.ScanName);
+            Console.WriteLine("ReportGenerated  : " + scanResult.ReportGenerated);
+            Console.WriteLine("Target           : " + host.Target);
+            Console.WriteLine("ScanStartDate    : " + host.ScanStartDate);
+            Console.WriteLine("ScanFinishDate   : " + host.ScanFinishDate);
+            Console.WriteLine("MAC Address      : " + host.MacAddress);
+            Console.WriteLine("OperatingSystem  : " + host.OperatingSystem);
 
-                    //pluginid                   
-                    if (item["@pluginID"] != null)
-                        vulnerability.PluginId = item["@pluginID"].ToString();
 
-                    //name
-                    if (item["@pluginName"] != null)
-                        vulnerability.Name = item["@pluginName"].ToString();
 
-                    //cvss base score
-                    if (item["cvss_base_score"] != null)
-                        vulnerability.CvssBaseScore = item["cvss_base_score"].ToString();
 
-                    //description
-                    if (item["description"] != null)
-                        vulnerability.Description = item["description"].ToString();
 
-                    //solution  
-                    if (item["solution"] != null)
-                        vulnerability.Solution = item["solution"].ToString();
+            Console.WriteLine("\nVulnerabilities");
 
-                    //output
-                    if (item["plugin_output"] != null)
-                        vulnerability.Output = item["plugin_output"].ToString();
-                    vlns.Add(vulnerability);
-                    Console.WriteLine("\tprotocol         : " + vulnerability.Protocol);
-                    Console.WriteLine("\tseverity         : " + vulnerability.Severity);
-                    Console.WriteLine("\tpluginID         : " + vulnerability.PluginId);
-                    Console.WriteLine("\tname             : " + vulnerability.Name);
-                    Console.WriteLine("\tcvssBaseScore    : " + vulnerability.CvssBaseScore);
-                    Console.WriteLine("\tdescription      : " + vulnerability.Description);
-                    Console.WriteLine("\tsolution         : " + vulnerability.Solution);
-                    Console.WriteLine("\toutput           : " + vulnerability.Output);
+            foreach (var item in Vulnerabilities)
+            {
 
-                    log.Info("writing info to console is success");
+                Console.WriteLine("-------------------------------------------");
+                //protocol               
+                if (item["@protocol"] != null)
+                    vulnerability.Protocol = item["@protocol"].ToString();
+
+                //severity               
+                if (item["@severity"] != null)
+                    vulnerability.Severity = item["@severity"].ToString();
+
+                //pluginid                   
+                if (item["@pluginID"] != null)
+                    vulnerability.PluginId = item["@pluginID"].ToString();
+
+                //name
+                if (item["@pluginName"] != null)
+                    vulnerability.Name = item["@pluginName"].ToString();
+
+                //cvss base score
+                if (item["cvss_base_score"] != null)
+                    vulnerability.CvssBaseScore = item["cvss_base_score"].ToString();
+
+                //description
+                if (item["description"] != null)
+                    vulnerability.Description = item["description"].ToString();
+
+                //solution  
+                if (item["solution"] != null)
+                    vulnerability.Solution = item["solution"].ToString();
+
+                //output
+                if (item["plugin_output"] != null)
+                    vulnerability.Output = item["plugin_output"].ToString();
+                vulnerabilities.Add(vulnerability);
+                Console.WriteLine("\tprotocol         : " + vulnerability.Protocol);
+                Console.WriteLine("\tseverity         : " + vulnerability.Severity);
+                Console.WriteLine("\tpluginID         : " + vulnerability.PluginId);
+                Console.WriteLine("\tname             : " + vulnerability.Name);
+                Console.WriteLine("\tcvssBaseScore    : " + vulnerability.CvssBaseScore);
+                Console.WriteLine("\tdescription      : " + vulnerability.Description);
+                Console.WriteLine("\tsolution         : " + vulnerability.Solution);
+                Console.WriteLine("\toutput           : " + vulnerability.Output);
+
+                log.Info("writing info to console is success");
                 //export json
                 if (export == 1)
+                {
+                    try
                     {
-                        try
-                        {
-                            new ScanResultCollection(scanResult, host, vlns);
-                            log.Info("json export is success");
-                        }
-                        catch (Exception e)
-                        {
-                            Console.WriteLine(e.Message);
-                            log.Error("error while exporting json");
-                            throw;
-                        }
+                        new ScanResultCollection(scanResult, host, vulnerabilities);
+                        log.Info("json export is success");
                     }
-                        
-
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.Message);
+                        log.Error("error while exporting json");
+                    }
                 }
-            
+
+
+            }
+
 
         }
 

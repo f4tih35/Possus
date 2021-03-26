@@ -1,9 +1,0 @@
-URL={https://example:8834}
-USERNAME={exampleuser@mail.com}
-PASSWORD={examplepassword}
-
-
-
-USAGE:
-STEP 1 : change the inside of parentheses and delete parentheses
-STEP 2 : delete usage save this file in auth.txt name
