@@ -14,12 +14,14 @@ using Newtonsoft.Json.Linq;
 using RestSharp;
 using System.Linq;
 using Possus.JsonOutput;
+using log4net;
 
 namespace Possus
 {
     public class NessusOperations
     {
-        
+        protected static readonly ILog log = LogManager.GetLogger(typeof(Program));
+
         RestClient Client;
         RestRequest Request;
         
@@ -32,13 +34,23 @@ namespace Possus
         //get server status
         public string GetServerStatus(string URL)
         {
-            Client = new RestClient(URL + "/server/status");
-            SSLHandler();
-            Request = new RestRequest(Method.GET);
+            try
+            {
+                Client = new RestClient(URL + "/server/status");
+                SSLHandler();
+                Request = new RestRequest(Method.GET);
+                IRestResponse Response = Client.Execute(Request);
+                log.Info("request in GetServerStatus is success");
+                return Response.Content;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                log.Error("error while request in GetServerStatus");
+                throw;
+            }
             
-            Request.AddHeader("Content-Type", "application/json");Request.AddHeader("X-Cookie", "token=ae2ce3ae222ec801aba71ddfe46a59ddfcf20df3bca8b749");
-            IRestResponse Response = Client.Execute(Request);
-            return Response.Content;
+            
         }
 
         //check status code ok
@@ -48,8 +60,10 @@ namespace Possus
             {
                 var ex = new Exception(string.Format("{0} - {1}", Response.ErrorMessage, Response.StatusCode));
                 ex.Data.Add(Response.StatusCode, Response.ErrorMessage);
+                log.Error("status code is not 200 from StatusCodeChecker");
                 throw ex;
             }
+            log.Info("status code is 200 from StatusCodeChecker");
         }
 
         //get token
@@ -65,12 +79,13 @@ namespace Possus
                 IRestResponse Response = Client.Execute(Request);
                 StatusCodeChecker(Response);
                 var Details = JObject.Parse(Response.Content);
+                log.Info("request in GetToken is success");
                 return (string)Details["token"]; //return token
             }
             catch (Exception e)
             {
-
                 Console.WriteLine(e.Message);
+                log.Error("error while request in GetToken");
                 return null;
             }
             
@@ -96,11 +111,13 @@ namespace Possus
                 {
                     scanList.Add(int.Parse((item["id"]).ToString()));
                 }
+                log.Info("request in GetAllScans is success");
                 return scanList;
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
+                log.Error("error while request in GetAllScans");
                 return null;
             }
             
@@ -110,8 +127,19 @@ namespace Possus
         //get last scan id
         public string GetLastScanId(string URL, NessusAuth na)
         {
-            List<int> myList = GetAllScans(URL,na);
-            return myList.FirstOrDefault().ToString();
+            try
+            {
+                List<int> myList = GetAllScans(URL, na);
+                log.Info("GetLastScanId is success");
+                return myList.FirstOrDefault().ToString();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                log.Error("error while GetLastScanId");
+                throw;
+            }
+            
         }
         
         //get file
@@ -129,22 +157,25 @@ namespace Possus
                 StatusCodeChecker(Response);
                 var Details = JObject.Parse(Response.Content);
                 string file = (string)Details["file"];
+                log.Info("GetFileId is success");
                 return file;
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
-                return "";
+                log.Error("error while GetFileId");
+                throw;
             }        
 
         }
 
         
 
-        //display scan result console OK
-        //return it for json output -
+
         public void GetAndReturnScan(string URL, NessusAuth na,string id,string file, int export=0)
         {
+            IRestResponse Response;
+
             try
             {
                 string token = GetToken(URL, na);
@@ -152,18 +183,37 @@ namespace Possus
                 SSLHandler();
                 Request = new RestRequest(Method.GET);
                 Request.AddHeader("X-Cookie", $"token={token}");
-                IRestResponse Response = Client.Execute(Request);
+                Response = Client.Execute(Request);
                 StatusCodeChecker(Response);
+                log.Info("GetAndReturnScan get request is success");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                log.Error("error while get request in GetAndReturnScan");
+                throw;
+            }
 
+            string json;
+            JObject Details;
+
+            try
+            {
                 //convert and parse xml to json
                 string xml = Response.Content;
                 XmlDocument doc = new XmlDocument();
                 doc.LoadXml(xml);
-                string json = JsonConvert.SerializeXmlNode(doc);
-                var Details = JObject.Parse(json);
-
-                //write json file for testing
-                File.WriteAllText("test.json", json);
+                json = JsonConvert.SerializeXmlNode(doc);
+                Details = JObject.Parse(json);
+                log.Info("convert and parse xml to json is success");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                log.Error("error while convert and parse xml to json");
+                throw;
+            }
+               
 
                 var Vulnerabilities = Details["NessusClientData_v2"]["Report"]["ReportHost"]["ReportItem"];
                 List<JToken> Tags = Details["NessusClientData_v2"]["Report"]["ReportHost"]["HostProperties"]["tag"].ToList();
@@ -269,29 +319,34 @@ namespace Possus
                     if (item["plugin_output"] != null)
                         vulnerability.Output = item["plugin_output"].ToString();
                     vlns.Add(vulnerability);
-                    Console.WriteLine("protocol         : " + vulnerability.Protocol);
-                    Console.WriteLine("severity         : " + vulnerability.Severity);
-                    Console.WriteLine("pluginID         : " + vulnerability.PluginId);
-                    Console.WriteLine("name             : " + vulnerability.Name);
-                    Console.WriteLine("cvssBaseScore    : " + vulnerability.CvssBaseScore);
-                    Console.WriteLine("description      : " + vulnerability.Description);
-                    Console.WriteLine("solution         : " + vulnerability.Solution);
-                    Console.WriteLine("output           : " + vulnerability.Output);
+                    Console.WriteLine("\tprotocol         : " + vulnerability.Protocol);
+                    Console.WriteLine("\tseverity         : " + vulnerability.Severity);
+                    Console.WriteLine("\tpluginID         : " + vulnerability.PluginId);
+                    Console.WriteLine("\tname             : " + vulnerability.Name);
+                    Console.WriteLine("\tcvssBaseScore    : " + vulnerability.CvssBaseScore);
+                    Console.WriteLine("\tdescription      : " + vulnerability.Description);
+                    Console.WriteLine("\tsolution         : " + vulnerability.Solution);
+                    Console.WriteLine("\toutput           : " + vulnerability.Output);
 
-                    //export json
-                    if(export == 1)
+                    log.Info("writing info to console is success");
+                //export json
+                if (export == 1)
                     {
-                        ScanResultCollection srcc = new ScanResultCollection(scanResult, host, vlns);
+                        try
+                        {
+                            new ScanResultCollection(scanResult, host, vlns);
+                            log.Info("json export is success");
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e.Message);
+                            log.Error("error while exporting json");
+                            throw;
+                        }
                     }
                         
 
                 }
-
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-            }
             
 
         }

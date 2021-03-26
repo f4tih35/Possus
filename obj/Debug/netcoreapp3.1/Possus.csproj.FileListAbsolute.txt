@@ -14,3 +14,9 @@ C:\Users\Fatih\Desktop\Github\Possus\obj\Debug\netcoreapp3.1\Possus.genruntimeco
 C:\Users\Fatih\Desktop\Github\Possus\bin\Debug\netcoreapp3.1\Newtonsoft.Json.dll
 C:\Users\Fatih\Desktop\Github\Possus\obj\Debug\netcoreapp3.1\Possus.csproj.CopyComplete
 C:\Users\Fatih\Desktop\Github\Possus\bin\Debug\netcoreapp3.1\RestSharp.dll
+C:\Users\Fatih\Desktop\Github\Possus\bin\Debug\netcoreapp3.1\log4net.dll
+C:\Users\Fatih\Desktop\Github\Possus\bin\Debug\netcoreapp3.1\System.Configuration.ConfigurationManager.dll
+C:\Users\Fatih\Desktop\Github\Possus\bin\Debug\netcoreapp3.1\System.Security.Cryptography.ProtectedData.dll
+C:\Users\Fatih\Desktop\Github\Possus\bin\Debug\netcoreapp3.1\System.Security.Permissions.dll
+C:\Users\Fatih\Desktop\Github\Possus\bin\Debug\netcoreapp3.1\runtimes\win\lib\netstandard2.0\System.Security.Cryptography.ProtectedData.dll
+C:\Users\Fatih\Desktop\Github\Possus\bin\Debug\netcoreapp3.1\log4net.config
