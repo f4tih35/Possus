@@ -26,7 +26,6 @@ namespace Possus.ConnectJson
                     {
                         string json = r.ReadToEnd();
                         connect = JsonConvert.DeserializeObject<Connect>(json);
-                        Console.WriteLine(connect.UserName);
                     }
                 }
                 catch (Exception e)

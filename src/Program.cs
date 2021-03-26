@@ -58,7 +58,7 @@ namespace Possus
 
             while (true)
             {
-                Console.Write("--POSSUS--\n1 - Export last scan\n2 - Export scan by ID\n3 - List all scan IDs\n4 - Get last scan\n5 - Get scan by ID\n6 - Get server status\noperation: ");
+                Console.Write("--POSSUS--\n1 - Export last scan\n2 - Export scan by ID\n3 - List all scan IDs\n4 - Get last scan\n5 - Get scan by ID\n6 - Get server status\n\nOperation: ");
                 operation = int.Parse(Console.ReadLine());
 
                 switch (operation)

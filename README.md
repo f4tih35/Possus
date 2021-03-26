@@ -1,16 +1,22 @@
-# Possus
+## Possus
 
-### Todo
-- [x] Basic Requests
-- [x] Some information
-- [x] Study Clean Code & Exception Handling
-- [x] MAC Address
-- [x] Scan start and finish date
-- [x] Target IP
-- [x] Json Export 
-- [x] Log all actions
-- [ ] More Clean Code
-- [ ] More Exception Handling
-- [ ] Cool UI 
-- [ ] Refactor app operations from Program.cs
-- [ ] Refactor GetAndReturnScan method
+Nessus report prescreener
+
+### Prerequisites
+
+* log4net
+* Newtonsoft.Json
+* RestSharp
+
+## Usage
+- Configure authentication
+	- go to Auth/auth-example.json
+	- change exampleurl, exampleusername, examplepassword
+	- save the file and rename it to auth.json
+-  Run the program
+
+## Screenshots
+![1](/img/1.png?raw=true)
+![2](/img/2.png?raw=true)
+![3](/img/3.png?raw=true)
+![4](/img/4.png?raw=true)
