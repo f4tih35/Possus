@@ -14,7 +14,7 @@ namespace Possus.JsonOutput
         {
             h.Vulnerabilities = vs;
             sr.Host = h;
-            this.ScanResults = new List<ScanResult>(){sr}; // sikinti burada
+            this.ScanResults = new List<ScanResult>(){sr};
             File.WriteAllText($"{sr.ScanName}.json", JsonConvert.SerializeObject(this.ScanResults));
         }
     }

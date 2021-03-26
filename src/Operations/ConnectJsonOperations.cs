@@ -10,7 +10,7 @@ namespace Possus
     {
         public static void ControlFileAndGetAuthInfo(ref Connect connect)
         {
-            if (File.Exists("Auth/auth-example.json"))
+            if (!File.Exists("Auth/auth.json"))
             {
                 Console.WriteLine("USAGE:\n"+
                     " - go to Auth folder then auth-example.json file\n"+

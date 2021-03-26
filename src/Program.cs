@@ -29,8 +29,8 @@ namespace Possus
             Connect connect = new Connect();
             var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
             NessusOperations nessusOperations = new NessusOperations();
-            string token;
-            int operation;
+            string token = "";
+            int operation = 0;
 
 
 
@@ -58,7 +58,19 @@ namespace Possus
             while (true)
             {
                 Console.Write("--POSSUS--\n1 - Export last scan\n2 - Export scan by ID\n3 - List all scan IDs\n4 - Get last scan\n5 - Get scan by ID\n6 - Get server status\n\nOperation: ");
-                operation = int.Parse(Console.ReadLine());
+
+                bool Valid = false;
+                while (Valid == false)
+                {
+                    string Input = Console.ReadLine();
+                    if (int.TryParse(Input, out operation)){
+                        Valid = true;
+                    }
+                    else
+                    {
+                        Console.Write("please write integer: ");
+                    }
+                }
 
                 switch (operation)
                 {

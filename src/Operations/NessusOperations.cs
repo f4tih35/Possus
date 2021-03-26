@@ -15,6 +15,7 @@ using RestSharp;
 using System.Linq;
 using Possus.JsonOutput;
 using log4net;
+using Possus.Models;
 
 namespace Possus
 {
@@ -185,7 +186,7 @@ namespace Possus
             ScanResult scanResult = new ScanResult();
             Host host = new Host(); //host
             Vulnerability vulnerability;
-            List<Vulnerability> vulnerabilitiesx = new List<Vulnerability>();
+            List<Vulnerability> vulnerabilities = new List<Vulnerability>();
 
             try
             {
@@ -293,14 +294,14 @@ namespace Possus
             foreach (var item in Vulnerabilities)
             {
                 vulnerability = new Vulnerability();
-                Console.WriteLine("-------------------------------------------");
                 //protocol               
                 if (item["@protocol"] != null)
                     vulnerability.Protocol = item["@protocol"].ToString();
 
                 //severity               
                 if (item["@severity"] != null)
-                    vulnerability.Severity = item["@severity"].ToString();
+                    vulnerability.Severity = (SeverityEnum)int.Parse(item["@severity"].ToString());
+                    
 
                 //pluginid                   
                 if (item["@pluginID"] != null)
@@ -320,14 +321,15 @@ namespace Possus
 
                 //solution  
                 if (item["solution"] != null)
-                    Console.WriteLine(item["solution"].ToString());
+                    vulnerability.Solution = item["solution"].ToString();
 
                 //plugin output
                 if (item["plugin_output"] != null)
                     vulnerability.Output = item["plugin_output"].ToString();
 
 
-                vulnerabilitiesx.Add(vulnerability);
+                vulnerabilities.Add(vulnerability);
+                Console.WriteLine("----------------------------------");
                 Console.WriteLine("\tprotocol         : " + vulnerability.Protocol);
                 Console.WriteLine("\tseverity         : " + vulnerability.Severity);
                 Console.WriteLine("\tpluginID         : " + vulnerability.PluginId);
@@ -339,17 +341,18 @@ namespace Possus
 
 
                 log.Info("writing info to console is success");
-                //export json
+                
 
 
 
             }
 
+            //export json
             if (export == 1)
             {
                 try
                 {
-                    new ScanResultCollection(scanResult, host, vulnerabilitiesx); //sikinti burada
+                    new ScanResultCollection(scanResult, host, vulnerabilities); //sikinti burada
                     log.Info("json export is success");
                 }
                 catch (Exception e)
@@ -361,36 +364,5 @@ namespace Possus
 
 
         }
-
-        /*  ignore this
-        public void WriteScan(ScanResultCollection src)
-        {
-            var asd = src.ScanResults.FirstOrDefault();
-            src.ScanResults.Remove(asd);
-            ScanResult sr = src.ScanResults.FirstOrDefault();
-            Host h = sr.Hosts.FirstOrDefault();
-
-            Console.WriteLine();
-            Console.WriteLine("ScanName         : " + sr.ScanName);
-            Console.WriteLine("ReportGenerated  : " + sr.ReportGenerated);
-            Console.WriteLine("Target           : " + h.Target);
-            Console.WriteLine("ScanStartDate    : " + h.ScanStartDate);
-            Console.WriteLine("ScanFinishDate   : " + h.ScanFinishDate);
-            Console.WriteLine("MAC Address      : " + h.MacAddress);
-            Console.WriteLine("OperatingSystem  : " + h.OperatingSystem);
-
-            Console.WriteLine("Vulnerabilities");
-            foreach (var item in h.Vulnerabilities)
-            {
-                Console.WriteLine("protocol         : " + item.Protocol);
-                Console.WriteLine("severity         : " + item.Severity);
-                Console.WriteLine("pluginID         : " + item.PluginId);
-                Console.WriteLine("name             : " + item.Name);
-                Console.WriteLine("cvssBaseScore    : " + item.CvssBaseScore);
-                Console.WriteLine("description      : " + item.Description);
-                Console.WriteLine("solution         : " + item.Solution);
-                Console.WriteLine("output           : " + item.Output);
-            }
-        }*/
     }
 }
