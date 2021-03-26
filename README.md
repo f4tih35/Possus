@@ -19,14 +19,14 @@ Nessus report prescreener
 ```json
 [
   {
-    "ScanName": "myscan4",
-    "ReportGenerated": "3/26/2021 10:56:04 PM",
+    "ScanName": "",
+    "ReportGenerated": "",
     "Host": {
-      "Target": "192.168.1.1",
-      "ScanStartDate": "Thu Mar 25 08:05:59 2021",
-      "ScanFinishDate": "Thu Mar 25 08:11:08 2021",
-      "MacAddress": "B0:95:75:D7:BE:F6",
-      "OperatingSystem": "Broadcom Corporation WPS X1",
+      "Target": "",
+      "ScanStartDate": "",
+      "ScanFinishDate": "",
+      "MacAddress": "",
+      "OperatingSystem": "",
       "Vulnerabilities": [
         {
           "Protocol": "",
