@@ -69,7 +69,7 @@ namespace Possus
         }
 
         //get token
-        public string GetToken(string URL, Connect na)
+        public string GetToken(string URL, ConnectJson na)
         {
             try
             {
@@ -94,7 +94,7 @@ namespace Possus
         }
 
         //get id list of all scans
-        public List<int> GetAllScans(string URL, Connect na)
+        public List<int> GetAllScans(string URL, ConnectJson na)
         {
             try
             {
@@ -127,7 +127,7 @@ namespace Possus
         }
 
         //get last scan id
-        public string GetLastScanId(string URL, Connect na)
+        public string GetLastScanId(string URL, ConnectJson na)
         {
             try
             {
@@ -145,7 +145,7 @@ namespace Possus
         }
 
         //get file
-        public string GetFileId(string URL, Connect na, string id)
+        public string GetFileId(string URL, ConnectJson na, string id)
         {
             try
             {
@@ -174,7 +174,7 @@ namespace Possus
 
 
 
-        public void GetAndReturnScan(string URL, Connect na, string id, string file, int export = 0)
+        public void GetAndReturnScan(string URL, ConnectJson na, string id, string file, int export = 0)
         {
             XmlDocument doc;
             string xml;

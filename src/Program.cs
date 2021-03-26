@@ -27,7 +27,7 @@ namespace Possus
 
         static void Main(string[] args)
         {
-            Connect connect = new Connect();
+            ConnectJson connect = new ConnectJson();
             var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
             NessusOperations nessusOperations = new NessusOperations();
             string token;

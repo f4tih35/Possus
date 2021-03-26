@@ -8,7 +8,7 @@ namespace Possus.ConnectJson
 {
     public static class ConnectJsonOperations
     {
-        public static void ControlFileAndGetAuthInfo(ref Connect connect)
+        public static void ControlFileAndGetAuthInfo(ref ConnectJson connect)
         {
             if (File.Exists("Auth/auth-example.json"))
             {
@@ -25,7 +25,7 @@ namespace Possus.ConnectJson
                     using (StreamReader r = new StreamReader("Auth/auth.json"))
                     {
                         string json = r.ReadToEnd();
-                        connect = JsonConvert.DeserializeObject<Connect>(json);
+                        connect = JsonConvert.DeserializeObject<ConnectJson>(json);
                     }
                 }
                 catch (Exception e)
