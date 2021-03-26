@@ -4,11 +4,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace Possus.ConnectJson
+namespace Possus
 {
     public static class ConnectJsonOperations
     {
-        public static void ControlFileAndGetAuthInfo(ref ConnectJson connect)
+        public static void ControlFileAndGetAuthInfo(ref Connect connect)
         {
             if (File.Exists("Auth/auth-example.json"))
             {
@@ -25,7 +25,7 @@ namespace Possus.ConnectJson
                     using (StreamReader r = new StreamReader("Auth/auth.json"))
                     {
                         string json = r.ReadToEnd();
-                        connect = JsonConvert.DeserializeObject<ConnectJson>(json);
+                        connect = JsonConvert.DeserializeObject<Connect>(json);
                     }
                 }
                 catch (Exception e)

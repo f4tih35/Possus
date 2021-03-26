@@ -13,7 +13,7 @@ namespace Possus
         static string fileId;
         static string lastId;
 
-        public static void ExportLastScan(ConnectJson connect)
+        public static void ExportLastScan(Connect connect)
         {
             try
             {
@@ -34,7 +34,7 @@ namespace Possus
             }
         }
 
-        public static void ExportScanById(ConnectJson connect)
+        public static void ExportScanById(Connect connect)
         {
             try
             {
@@ -57,7 +57,7 @@ namespace Possus
             }
         }
 
-        public static void ListAllScanIds(ConnectJson connect)
+        public static void ListAllScanIds(Connect connect)
         {
             try
             {
@@ -80,7 +80,7 @@ namespace Possus
             }
         }
 
-        public static void GetLastScan(ConnectJson connect)
+        public static void GetLastScan(Connect connect)
         {
             try
             {
@@ -101,7 +101,7 @@ namespace Possus
             }
         }
 
-        public static void GetScanById(ConnectJson connect)
+        public static void GetScanById(Connect connect)
         {
             try
             {
@@ -124,7 +124,7 @@ namespace Possus
             }
         }
 
-        public static void GetServerStatus(ConnectJson connect)
+        public static void GetServerStatus(Connect connect)
         {
             try
             {

@@ -16,7 +16,6 @@ using log4net.Config;
 using System.Reflection;
 using System.Linq;
 using Newtonsoft.Json;
-using Possus.ConnectJson;
 
 namespace Possus
 {
@@ -27,7 +26,7 @@ namespace Possus
 
         static void Main(string[] args)
         {
-            ConnectJson connect = new ConnectJson();
+            Connect connect = new Connect();
             var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
             NessusOperations nessusOperations = new NessusOperations();
             string token;
