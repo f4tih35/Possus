@@ -14,6 +14,7 @@ using Possus.JsonOutput;
 using log4net;
 using log4net.Config;
 using System.Reflection;
+using System.Linq;
 
 namespace Possus
 {
@@ -21,6 +22,7 @@ namespace Possus
     class Program
     {
         protected static readonly ILog log = LogManager.GetLogger(typeof(Program));
+        
         static void Main(string[] args)
         {
             var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
@@ -29,26 +31,42 @@ namespace Possus
             NessusAuth nessusAuth = new NessusAuth(); // setup auth
             NessusOperations nessusOperations = new NessusOperations(); // setup operations
             string nessusServerURL = "";
-            try
+
+
+
+            if (File.Exists("auth-example.txt"))
             {
-                //validation need
-                Console.Write("nessus server url: ");
-                nessusServerURL = Console.ReadLine();
-                Console.Write("username: ");
-                nessusAuth.UserName = Console.ReadLine();
-                Console.Write("password: ");
-                nessusAuth.Password = Console.ReadLine();
-                Console.Clear();
-                log.Info("connected to the server");
+                Console.WriteLine("go to auth-example file and follow the instructions ");
+                Environment.Exit(0);
             }
-            catch (Exception e)
+            else
             {
-                Console.WriteLine(e.Message);
-                log.Error("error while connecting the server");
-                throw;
+                try
+                {
+                    string[] lines = File.ReadAllLines(@"auth.txt");
+                    nessusServerURL = lines[0].Split('=')[1].Trim();
+                    nessusAuth.UserName = lines[1].Split('=')[1].Trim();
+                    nessusAuth.Password = lines[2].Split('=')[1].Trim();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                    throw;
+                }
             }
 
-            
+            //login test
+            var token = nessusOperations.GetToken(nessusServerURL, nessusAuth);
+            if(token != null)
+            {
+                log.Info("establishing connection and getting token success");
+            }
+            else
+            {
+                log.Error("error while getting token. Please check auth.txt file");
+                Environment.Exit(0);
+            }
+
 
             string scanId = "";
             string fileId = "";
@@ -170,7 +188,7 @@ namespace Possus
                             }
                             
                             break;
-                        case 6: //ok
+                        case 6:
                             try
                             {
                                 Console.Clear();
