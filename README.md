@@ -1,6 +1,6 @@
 ## Possus
 
-Nessus report prescreener
+Nessus report jsonizer
 
 ### Prerequisites
 
